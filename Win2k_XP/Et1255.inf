@@ -1,0 +1,71 @@
+; ET1255.inf install information file
+; Created 18.05.2006
+; Copyright (c) Terex 2006. All rights reserved.
+
+[Version]
+Signature="$Chicago$"
+Class=Terex
+ClassGUID={c671678c-82c1-43f3-d700-0049433e9a4b}
+Provider=%ProviderName%
+DriverVer=18/05/2006,1.0.0.1
+
+;[SourceDisksNames]
+1 = "Install Disk",,,
+
+;[SourceDisksFiles]
+ET1255.sys = 1,,
+
+[ClassInstall32]
+Addreg=Class_Terex
+
+[Class_Terex]
+HKR,,,0,Terex
+HKR,,Icon,,"-5"
+
+[DestinationDirs]
+ET1255_Files_Driver = 10,System32\Drivers
+
+[Manufacturer]
+%MfgName%=Mfg0
+
+[Mfg0]
+%DeviceDesc%=ET1255_DDI, PCI\VEN_FFFE&DEV_1255&SUBSYS_00000000&REV_01
+
+; --------- Windows 9X -----------------
+[ET1255_DDI]
+CopyFiles=ET1255_Files_Driver
+AddReg=ET1255_9X_AddReg
+
+[ET1255_9X_AddReg]
+HKR,,DevLoader,,*ntkern
+HKR,,NTMPDriver,,ET1255.sys
+HKR, "Parameters", "BreakOnEntry", 0x00010001, 0
+
+; --------- Windows NT -----------------
+[ET1255_DDI.NT]
+CopyFiles=ET1255_Files_Driver
+AddReg=ET1255_NT_AddReg
+
+[ET1255_DDI.NT.Services]
+Addservice = ET1255, 0x00000002, ET1255_AddService
+
+[ET1255_AddService]
+DisplayName    = %SvcDesc%
+ServiceType    = 1                  ; SERVICE_KERNEL_DRIVER
+StartType      = 3                  ; SERVICE_DEMAND_START
+ErrorControl   = 1                  ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %10%\System32\Drivers\ET1255.sys
+
+[ET1255_NT_AddReg]
+HKLM, "System\CurrentControlSet\Services\ET1255\Parameters",\
+	"BreakOnEntry", 0x00010001, 0
+
+[ET1255_Files_Driver]
+ET1255.sys
+
+[Strings]
+ProviderName="Terex"
+MfgName="Terex"
+DeviceDesc="ET1255 driver"
+DeviceClassName="ET1255 Device"
+SvcDesc="ET1255"
