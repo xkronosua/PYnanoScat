@@ -33,10 +33,7 @@ import struct
 
 from datetime import datetime
 
-def dig2Volts(dig, vdiv, bit=256,div=8):
-	return dig/bit*div*vdiv
-def dig2sec(dig,tdiv,bit=2048,div=10):
-	return dig/bit*div*tdiv
+
  
 
 
@@ -879,8 +876,8 @@ class nanoScat_PD(QtGui.QMainWindow):
 		self.ui.oscilloFreq.setText(str(frequency))
 		self.ui.duty_cycle.setText(str(duty_cycle))
 		
-		val1 = (Vpp1)/256*(div[index1]*8)*1.333333
-		STD1 = (STD)/256*(div[index1]*8)*1.333333 
+		val1 = self.oscillo.dig2Volts(Vpp1, div[index1])#(Vpp1)/256*(div[index1]*8)*1.333333
+		STD1 = self.oscillo.dig2Volts(STD, div[index1])#(STD)/256*(div[index1]*8)*1.333333 
 		self.ui.CH1Val.setText(str(val1))
 		self.ui.CH1Val_std.setText(str(STD1))
 
@@ -888,7 +885,7 @@ class nanoScat_PD(QtGui.QMainWindow):
 		ref = medfilt(ref,5)
 		Vpp2 = ref.max()-ref.min()
 		print("Vpp1:",Vpp1,"Vpp2:",Vpp2)
-		val2 = (Vpp2)/256*(div[index2]*8)*1.333333
+		val2 = self.oscillo.dig2Volts(Vpp2, div[index2])#(Vpp2)/256*(div[index2]*8)*1.333333
 		self.ui.CH2Val.setText(str(val2))
 
 		if self.ui.oscilloAuto.isChecked() and (time.time()-self.lastDivChange)>1 :

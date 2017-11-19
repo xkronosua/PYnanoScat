@@ -142,6 +142,11 @@ class HAMEG(object):
 
 		return r
 
+	def dig2Volts(self, dig, vdiv, bit=256,div=8):
+		return dig/bit*div*vdiv
+	def dig2sec(self, dig,tdiv,bit=2048,div=10):
+		return dig/bit*div*tdiv
+
 #r = wtwf1(ser)
 #print(r)
 
