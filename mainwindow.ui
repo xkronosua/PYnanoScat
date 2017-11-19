@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1064</width>
-    <height>664</height>
+    <width>1559</width>
+    <height>1263</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -103,7 +103,7 @@ color: #222222;</string>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="measurementDirCW">
+         <widget class="QPushButton" name="measurementDirCCW">
           <property name="maximumSize">
            <size>
             <width>30</width>
@@ -119,7 +119,7 @@ color: #222222;</string>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="measurementDirCCW">
+         <widget class="QPushButton" name="measurementDirCW">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -281,8 +281,8 @@ font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>300</width>
-         <height>522</height>
+         <width>319</width>
+         <height>1108</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -296,205 +296,209 @@ font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QGroupBox" name="stepping_control">
-          <property name="maximumSize">
-           <size>
-            <width>280</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="title">
-           <string>Stepping</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_3">
-           <property name="leftMargin">
-            <number>1</number>
-           </property>
-           <property name="topMargin">
-            <number>1</number>
-           </property>
-           <property name="rightMargin">
-            <number>5</number>
-           </property>
-           <item row="2" column="3">
-            <widget class="QPushButton" name="CCWMoveToStop">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>44</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>&gt;&gt;&gt;||</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="6">
-            <widget class="QPushButton" name="pushButton">
-             <property name="maximumSize">
-              <size>
-               <width>40</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Pause</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QPushButton" name="CWHome">
-             <property name="maximumSize">
-              <size>
-               <width>50</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>&lt;&lt;Home</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="3">
-            <widget class="QPushButton" name="CCWHome">
-             <property name="maximumSize">
-              <size>
-               <width>50</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Home&gt;&gt;</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QPushButton" name="CWSingleMove">
-             <property name="maximumSize">
-              <size>
-               <width>50</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="contextMenuPolicy">
-              <enum>Qt::ActionsContextMenu</enum>
-             </property>
-             <property name="text">
-              <string>&lt;&lt;&lt;</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="6" rowspan="2">
-            <widget class="QPushButton" name="stepperStop">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>40</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>STOP</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QPushButton" name="CWMoveToStop">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>44</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>|||&lt;&lt;&lt;</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="3">
-            <widget class="QPushButton" name="CCWSingleMove">
-             <property name="maximumSize">
-              <size>
-               <width>50</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>&gt;&gt;&gt;</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QPushButton" name="openAngleSensorPort">
-             <property name="text">
-              <string>Open</string>
-             </property>
-             <property name="checkable">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QSpinBox" name="angleSensorPort">
-             <property name="maximumSize">
-              <size>
-               <width>50</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1" colspan="2">
-            <widget class="QDoubleSpinBox" name="steppingAngle">
-             <property name="maximumSize">
-              <size>
-               <width>100</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="decimals">
-              <number>6</number>
-             </property>
-             <property name="maximum">
-              <double>1000000000.000000000000000</double>
-             </property>
-             <property name="value">
-              <double>1.000000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1" rowspan="2" colspan="2">
-            <widget class="QLabel" name="currentAngle">
-             <property name="styleSheet">
-              <string notr="true">color:yellow; font-size:40pt;</string>
-             </property>
-             <property name="text">
-              <string>ang</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="4" column="5">
+           <widget class="QPushButton" name="CCWMoveToStop">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>&gt;&gt;&gt;||</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QPushButton" name="CWMoveToStop">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>|||&lt;&lt;&lt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QPushButton" name="openAngleSensorPort">
+            <property name="text">
+             <string>Open</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QPushButton" name="CWHome">
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>&lt;&lt;Home</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="5">
+           <widget class="QPushButton" name="CCWHome">
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Home&gt;&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1" rowspan="2" colspan="4">
+           <widget class="QLabel" name="currentAngle">
+            <property name="styleSheet">
+             <string notr="true">color:yellow; font-size:40pt;</string>
+            </property>
+            <property name="text">
+             <string>ang</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="angleSensorPort">
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3" colspan="3">
+           <widget class="QPushButton" name="stepperStop">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">border: 1px solid red;</string>
+            </property>
+            <property name="text">
+             <string>STOP</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="4" colspan="2">
+           <widget class="QPushButton" name="setCustomAngle">
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>setAngle</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QPushButton" name="setStepperSpeed">
+            <property name="text">
+             <string>setSpeed</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="3">
+           <widget class="QPushButton" name="moveToAngle">
+            <property name="text">
+             <string>moveTo</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QPushButton" name="stepperLock">
+            <property name="text">
+             <string>lock</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" rowspan="2" colspan="5">
+           <widget class="QSlider" name="stepperSpeed">
+            <property name="minimum">
+             <number>50</number>
+            </property>
+            <property name="maximum">
+             <number>2100</number>
+            </property>
+            <property name="value">
+             <number>512</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="5" rowspan="2">
+           <widget class="QSpinBox" name="stepperSpeedValue">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>3000</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <layout class="QGridLayout" name="oscillo_config">
+          <item row="0" column="0">
+           <widget class="QPushButton" name="oscilloConnect">
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Connect</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
           <item row="2" column="1">
            <widget class="QLabel" name="label_7">
             <property name="maximumSize">
@@ -646,22 +650,6 @@ font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QPushButton" name="oscilloConnect">
-            <property name="maximumSize">
-             <size>
-              <width>100</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Connect</string>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -920,7 +908,7 @@ font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
            <widget class="QLabel" name="CH1Val">
             <property name="maximumSize">
              <size>
-              <width>50</width>
+              <width>100</width>
               <height>16777215</height>
              </size>
             </property>
@@ -936,7 +924,7 @@ font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
            <widget class="QLabel" name="CH2Val">
             <property name="maximumSize">
              <size>
-              <width>50</width>
+              <width>100</width>
               <height>16777215</height>
              </size>
             </property>
@@ -945,6 +933,43 @@ font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
             </property>
             <property name="text">
              <string>val2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QCheckBox" name="oscilloAuto">
+            <property name="text">
+             <string>Auto</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="QLabel" name="CH1Val_std">
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>val1_std</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="0">
+           <widget class="QLabel" name="oscilloFreq">
+            <property name="text">
+             <string>freq</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="1">
+           <widget class="QLabel" name="duty_cycle">
+            <property name="text">
+             <string>duty_cycle</string>
             </property>
            </widget>
           </item>
@@ -961,7 +986,7 @@ font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
          <x>0</x>
          <y>0</y>
          <width>300</width>
-         <height>491</height>
+         <height>1121</height>
         </rect>
        </property>
        <property name="maximumSize">
@@ -994,14 +1019,38 @@ font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
                 <number>6</number>
                </property>
                <property name="columnCount">
-                <number>2</number>
+                <number>3</number>
                </property>
-               <row/>
-               <row/>
-               <row/>
-               <row/>
-               <row/>
-               <row/>
+               <row>
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>1</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>2</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>3</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>4</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>5</string>
+                </property>
+               </row>
                <column>
                 <property name="text">
                  <string>name</string>
@@ -1010,6 +1059,11 @@ font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
                <column>
                 <property name="text">
                  <string>value</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>range</string>
                 </property>
                </column>
                <item row="0" column="0">
@@ -1022,12 +1076,22 @@ font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
                  <string>1</string>
                 </property>
                </item>
+               <item row="0" column="2">
+                <property name="text">
+                 <string>1</string>
+                </property>
+               </item>
                <item row="1" column="0">
                 <property name="text">
                  <string>op06</string>
                 </property>
                </item>
                <item row="1" column="1">
+                <property name="text">
+                 <string>0.251188643150958</string>
+                </property>
+               </item>
+               <item row="1" column="2">
                 <property name="text">
                  <string>1</string>
                 </property>
@@ -1039,6 +1103,12 @@ font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
                </item>
                <item row="2" column="1">
                 <property name="text">
+                 <string>0.12589254117941673
+</string>
+                </property>
+               </item>
+               <item row="2" column="2">
+                <property name="text">
                  <string>1</string>
                 </property>
                </item>
@@ -1049,27 +1119,42 @@ font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
                </item>
                <item row="3" column="1">
                 <property name="text">
+                 <string>0.015848931924611134</string>
+                </property>
+               </item>
+               <item row="3" column="2">
+                <property name="text">
                  <string>1</string>
                 </property>
                </item>
                <item row="4" column="0">
                 <property name="text">
-                 <string>op09,op18</string>
+                 <string>op09,op18,op18</string>
                 </property>
                </item>
                <item row="4" column="1">
+                <property name="text">
+                 <string>3.1622776601683795e-05</string>
+                </property>
+               </item>
+               <item row="4" column="2">
                 <property name="text">
                  <string>1</string>
                 </property>
                </item>
                <item row="5" column="0">
                 <property name="text">
-                 <string>-</string>
+                 <string>0</string>
                 </property>
                </item>
                <item row="5" column="1">
                 <property name="text">
-                 <string>0</string>
+                 <string>1e-22</string>
+                </property>
+               </item>
+               <item row="5" column="2">
+                <property name="text">
+                 <string>1</string>
                 </property>
                </item>
               </widget>
@@ -1112,14 +1197,177 @@ font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
                </property>
               </widget>
              </item>
-             <item row="0" column="2">
-              <widget class="QPushButton" name="calibrFW">
-               <property name="text">
-                <string>calibr.</string>
-               </property>
-              </widget>
-             </item>
             </layout>
+           </item>
+           <item row="2" column="0" colspan="2">
+            <widget class="QGroupBox" name="groupBox">
+             <property name="title">
+              <string>Config</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_3">
+              <item>
+               <widget class="QTableWidget" name="globalConfig">
+                <row>
+                 <property name="text">
+                  <string>Wavelength</string>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string>AngleCalibr</string>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string>Object</string>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string>Distance</string>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </row>
+                <column>
+                 <property name="text">
+                  <string>value</string>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>comments</string>
+                 </property>
+                </column>
+                <item row="0" column="0">
+                 <property name="text">
+                  <string>1064</string>
+                 </property>
+                </item>
+                <item row="0" column="1">
+                 <property name="text">
+                  <string>nm</string>
+                 </property>
+                </item>
+                <item row="1" column="0">
+                 <property name="text">
+                  <string>0.5</string>
+                 </property>
+                </item>
+                <item row="3" column="0">
+                 <property name="text">
+                  <string>34</string>
+                 </property>
+                </item>
+                <item row="3" column="1">
+                 <property name="text">
+                  <string>cm</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="saveConfig">
+                <property name="text">
+                 <string>save</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -1135,13 +1383,13 @@ font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1064</width>
+     <width>1559</width>
      <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFIle">
     <property name="title">
-     <string>FIle</string>
+     <string>&amp;FIle</string>
     </property>
     <addaction name="actionClose"/>
    </widget>
@@ -1158,7 +1406,7 @@ font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionClose">
    <property name="text">
-    <string>Close</string>
+    <string>&amp;Close</string>
    </property>
   </action>
  </widget>

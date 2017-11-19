@@ -1,34 +1,43 @@
+bool debugMode=0;
+
 #include <Servo.h>
 Servo fWheel;
 
-#define FWHEEL_PIN 4//A2
-#define STEPPER_DIR_PIN  6
-#define STEPPER_STEP_PIN 10  //7
-#define STEPPER_ENABLE_PIN 8
+#define FWHEEL_PIN 5
+#define SM_DIR_PIN  4
+#define SM_STEP_PIN 11 //7
+#define SM_ENABLE_PIN 2
 #define HOME_SENSOR_PIN 7  //2
 
 #define LASER_CONTROL_PIN 13
 #define LASER_SET_OFF HIGH
 #define LASER_SET_ON  LOW
-#define LASER_SIM_PIN 5
+#define LASER_SIM_PIN 9
+
+#define BUTTON_STOP 3
+#define BUTTON_CW   6
+#define BUTTON_CCW  8
+
 
 #define FW_CORRECTION 17
 byte fWheelAng[6] = {10+FW_CORRECTION, 40+FW_CORRECTION, 70+FW_CORRECTION, 100+FW_CORRECTION, 130+FW_CORRECTION, 160+FW_CORRECTION};
 byte activeFilter = 2;
 
-enum COMMANDS {STEPPER_STOP, STEPPER_OFF, STEPPER_ON, STEPPER_HOME_CW, STEPPER_HOME_CCW, STEPPER_ROT_CCW, STEPPER_ROT_CW, STEPPER_ROT_CCWN, STEPPER_ROT_CWN, FWHEEL_ANG};
+enum COMMANDS {SM_STOP, SM_OFF, SM_ON, SM_HOME_CW, SM_HOME_CCW, SM_ROT_CCW, SM_ROT_CW, SM_ROT_CCWN, SM_ROT_CWN, FWHEEL_ANG, SM_SET_ANGLE};
 
-#define ST_DIR_CCW HIGH
-#define ST_DIR_CW LOW
+#define ST_DIR_CCW LOW
+#define ST_DIR_CW HIGH
 
 
 
 unsigned long curMillis;
 unsigned long prevStepMillis = 0;
-unsigned long millisBetweenSteps = 15; // milliseconds
+unsigned long millisBetweenSteps = 1000; // milliseconds
+unsigned long mouseReinit = 1800000; // milliseconds
+unsigned long mouseReinitTimer = 0; // milliseconds
 
 unsigned long serialPrevStepMillis = 0;
-unsigned long serialOutputPeriod = 100; // milliseconds
+unsigned long serialOutputPeriod = 50; // milliseconds
 
 unsigned long angle_timer = 0;
 unsigned long laser_timer = 0;
@@ -42,125 +51,181 @@ boolean stringComplete = false;  // whether the string is complete
 long steps = 0;
 bool step_state = false;
 
-#include "ps2.h"
 #include <DirectIO.h>
-PS2 mouse(11, 12);
+#include "ps2.h"
+//PS2 mouse(data, clock);
+PS2 mouse(10, 12);
 
 InputPin optEndstop(HOME_SENSOR_PIN);
-OutputPin stepperDir(STEPPER_DIR_PIN);
-OutputPin stepperStep(STEPPER_STEP_PIN);
-OutputPin stepperEnable(STEPPER_ENABLE_PIN);
+
+InputPin stop_button(BUTTON_STOP);
+InputPin cw_button(BUTTON_CW);
+InputPin ccw_button(BUTTON_CCW);
+
+
+OutputPin stepperDir(SM_DIR_PIN);
+OutputPin stepperStep(SM_STEP_PIN);
+OutputPin stepperEnable(SM_ENABLE_PIN);
 OutputPin laserControl(LASER_CONTROL_PIN);
 
 OutputPin laserSimulator(LASER_SIM_PIN);
 
-
-
 int rotationMode = 0;
-
 int angleCounter = 0;
-int STEP_COUNTER = 0, N_STEPS = 0;
+unsigned long STEP_COUNTER = 0, N_STEPS = 0;
 byte homeState = 0;
 
-int singleStep() {
-  if (curMillis - prevStepMillis >= millisBetweenSteps) {
+int stepperSpeed = 512;
+
+int singleStep(int Speed) {
+  if (millis() - prevStepMillis >= millisBetweenSteps && rotationMode!=SM_STOP) {
     prevStepMillis = curMillis;
-    //stepperStep = (step_state > 0);
-    for (int i=0;i<10;i++){
-    stepperStep = HIGH;
-    delayMicroseconds(50);
-    stepperStep = LOW;
     STEP_COUNTER++;
-    delayMicroseconds(60);
-    }
-      return 1;
-    
+    tone(SM_STEP_PIN,stepperSpeed,millisBetweenSteps);
+    return 1;
   }
-  else return 0;
+  else {
+  return 0;  
+  }
 }
 
 void rotNSteps(int steps, bool dir) {
   stepperDir = dir;
-  if (STEP_COUNTER < steps) singleStep();
+  if (STEP_COUNTER < steps) singleStep(stepperSpeed);
   else {
-    //step_counter = 0;
   }
 }
 
-void setPwmFrequency(int pin, int divisor) {
-  byte mode;
-  if(pin == 5 || pin == 6 || pin == 9 || pin == 10) {
-    switch(divisor) {
-      case 1: mode = 0x01; break;
-      case 8: mode = 0x02; break;
-      case 64: mode = 0x03; break;
-      case 256: mode = 0x04; break;
-      case 1024: mode = 0x05; break;
-      default: return;
-    }
-    if(pin == 5 || pin == 6) {
-      TCCR0B = TCCR0B & 0b11111000 | mode;
-    } else {
-      TCCR1B = TCCR1B & 0b11111000 | mode;
-    }
-  } else if(pin == 3 || pin == 11) {
-    switch(divisor) {
-      case 1: mode = 0x01; break;
-      case 8: mode = 0x02; break;
-      case 32: mode = 0x03; break;
-      case 64: mode = 0x04; break;
-      case 128: mode = 0x05; break;
-      case 256: mode = 0x06; break;
-      case 1024: mode = 0x07; break;
-      default: return;
-    }
-    TCCR2B = TCCR2B & 0b11111000 | mode;
-  }
-}
 
 void stepperRotation() {
   // if (stepperEnable == HIGH) stepperEnable = LOW;
   switch (rotationMode) {
-    case STEPPER_STOP: stepperEnable = HIGH; break;
-    case STEPPER_ROT_CW:  {
-        stepperDir = ST_DIR_CW; singleStep(); break;
+    case SM_STOP: stepperEnable = HIGH;noTone(SM_STEP_PIN); break;
+    case SM_ROT_CW:  {
+        stepperDir = ST_DIR_CW; singleStep(stepperSpeed); break;
       }
-    case STEPPER_ROT_CCW: {
-        stepperDir = ST_DIR_CCW; singleStep(); break;
+    case SM_ROT_CCW: {
+        stepperDir = ST_DIR_CCW; singleStep(stepperSpeed); break;
       }
-    case STEPPER_ROT_CWN:   rotNSteps(N_STEPS, ST_DIR_CW); break;
-    case STEPPER_ROT_CCWN:  rotNSteps(N_STEPS, ST_DIR_CCW); break;
-    case STEPPER_HOME_CW: {
+    case SM_ROT_CWN:   rotNSteps(N_STEPS, ST_DIR_CW); break;
+    case SM_ROT_CCWN:  rotNSteps(N_STEPS, ST_DIR_CCW); break;
+    case SM_HOME_CW: {
         homeState = optEndstop.read();
         stepperDir = ST_DIR_CW;
         if (homeState) {
-          rotationMode = STEPPER_STOP;
+          rotationMode = SM_STOP;
           angleCounter = 0;
         }
         else {
-          singleStep();
+          singleStep(stepperSpeed);
         }
       }; break;
-    case STEPPER_HOME_CCW: {
+    case SM_HOME_CCW: {
         homeState = optEndstop.read();
         stepperDir = ST_DIR_CCW;
         if (homeState) {
-          rotationMode = STEPPER_STOP;
+          rotationMode = SM_STOP;
           angleCounter = 0;
         }
         else {
-          singleStep();
+          singleStep(stepperSpeed);
         }; break;
       }
   }
 }
 
+void remoteControl() {
+  int st, ang;
 
+  if (inputString == "SM:") {
+    if(inputValue == "OFF"){
+    rotationMode = SM_OFF;
+    stepperEnable = HIGH;
+    }
+    if(inputValue == "STOP"){   /////////////////////////////////////////////////////////////////___+++__________
+    rotationMode = SM_STOP;
+    stepperEnable = HIGH;
+    }
+    if(inputValue == "ON"){
+    rotationMode = SM_ON;
+    stepperEnable = LOW;
+    }
+    Serial.println("SM_STOP");
+  }
+  else if (inputString == "CW" ) {
+    stepperEnable = LOW;
+    rotationMode = SM_ROT_CW;
+    tone(SM_STEP_PIN,stepperSpeed,millisBetweenSteps);
+    Serial.println("SM_ROT_CW");
+  }
+  else if (inputString == "HOME:" ) {
+    
+    if (inputValue == "CW")  rotationMode = SM_HOME_CW;
+    if (inputValue == "CCW") rotationMode = SM_HOME_CCW;
+    tone(SM_STEP_PIN,stepperSpeed,millisBetweenSteps);
+    stepperEnable = LOW;
+    Serial.println("SM_HOME");
+  }
+  else if (inputString == "SPEED:" ) {
+    int val = inputValue.toInt();
+    if (val >0 && val < 1023000){
+      stepperSpeed = val;
+      stepperEnable = HIGH;
+      noTone(SM_STEP_PIN);
+      tone(SM_STEP_PIN,stepperSpeed,millisBetweenSteps);
+      stepperEnable = LOW;
+      Serial.print("SM_SPEED:");
+      Serial.println(stepperSpeed);
+      }
+  }
+  else if (inputString == "ANGLE:" ) {
+    int val = inputValue.toInt();
+    angleCounter = val;
+    if (debugMode==1) STEP_COUNTER = val;
+    Serial.print("ANGLE:");
+    Serial.println(angleCounter);
+    
+  }
+  else if (inputString == "CW:") {
+    st = inputValue.toInt();
+    rotationMode = SM_ROT_CWN;
+    stepperEnable = LOW;
+    N_STEPS = st;
+    STEP_COUNTER = 0;
+    Serial.print("SM_ROT_CWN:");
+    Serial.println(st);
+  }
+  else if (inputString == "CCW") {
+    stepperEnable = LOW;
+    rotationMode = SM_ROT_CCW;
+    tone(SM_STEP_PIN,stepperSpeed,millisBetweenSteps);
+    Serial.println("SM_ROT_CCW");
+  }
+  else if (inputString == "CCW:") {
+    st = inputValue.toInt();
+    rotationMode = SM_ROT_CCWN;
+    stepperEnable = LOW;
+    N_STEPS = st;
+    STEP_COUNTER = 0;
+    Serial.print("SM_ROT_CWN:");
+    Serial.println(st);
+  }
+  else if (inputString == "FW:") {
+    st = inputValue.toInt();
+    setFilter((byte)st);
+    activeFilter = (byte)st;
+    Serial.print("FW:");
+    Serial.println(st);
+  }
+  else if (inputString == "LASER:") {
+    if(inputValue == "OFF") laserControl = LASER_SET_OFF;
+    if(inputValue == "ON")  laserControl = LASER_SET_ON;
+    
+    Serial.print("LASER:");
+    Serial.println(inputValue);
+  }
 
-
-
-
-
+}
 
 void setFWheel(int ang) {
   int last_pos = fWheel.read();
@@ -182,7 +247,6 @@ void setFWheel(int ang) {
 int setFilter(byte index) {
   if (index < 6) {
     setFWheel(fWheelAng[index]);
-  
   return 1;}
   else {
     return 0;
@@ -190,102 +254,6 @@ int setFilter(byte index) {
 }
 
 
-void remoteControl() {
-  int st, ang;
-
-  if (inputString == "STEPPER:") {
-    if(inputValue == "OFF"){
-    rotationMode = STEPPER_OFF;
-    stepperEnable = HIGH;
-    }
-    if(inputValue == "STOP"){   /////////////////////////////////////////////////////////////////___+++__________
-    rotationMode = STEPPER_STOP;
-    stepperEnable = HIGH;
-    }
-    if(inputValue == "ON"){
-    rotationMode = STEPPER_ON;
-    stepperEnable = LOW;
-    }
-    Serial.println("STEPPER_STOP");
-  }
-  else if (inputString == "CW" ) {
-    stepperEnable = LOW;
-    rotationMode = STEPPER_ROT_CW;
-    Serial.println("STEPPER_ROT_CW");
-  }
-  else if (inputString == "HOME:" ) {
-    stepperEnable = LOW;
-    if (inputValue == "CW")  rotationMode = STEPPER_HOME_CW;
-    if (inputValue == "CCW") rotationMode = STEPPER_HOME_CCW;
-    Serial.println("STEPPER_HOME");
-  }
-  else if (inputString == "CW:") {
-    st = inputValue.toInt();
-    rotationMode = STEPPER_ROT_CWN;
-    stepperEnable = LOW;
-    N_STEPS = st;
-    STEP_COUNTER = 0;
-    Serial.print("STEPPER_ROT_CWN:");
-    Serial.println(st);
-  }
-  else if (inputString == "CCW") {
-    stepperEnable = LOW;
-    rotationMode = STEPPER_ROT_CCW;
-    Serial.println("STEPPER_ROT_CCW");
-  }
-  else if (inputString == "CCW:") {
-    st = inputValue.toInt();
-    rotationMode = STEPPER_ROT_CCWN;
-    stepperEnable = LOW;
-    N_STEPS = st;
-    STEP_COUNTER = 0;
-    Serial.print("STEPPER_ROT_CWN:");
-    Serial.println(st);
-  }
-  else if (inputString == "FW:") {
-    st = inputValue.toInt();
-    //rotationMode = FWHEEL_ANG;
-    //stepperEnable = LOW;
-    //N_STEPS = st;
-    //STEP_COUNTER = 0;
-    //setFWheel(st);
-    setFilter((byte)st);
-    activeFilter = (byte)st;
-    Serial.print("FW:");
-    Serial.println(st);
-  }
-  else if (inputString == "LASER:") {
-    if(inputValue == "OFF") laserControl = LASER_SET_OFF;
-    if(inputValue == "ON")  laserControl = LASER_SET_ON;
-    
-    Serial.print("LASER:");
-    Serial.println(inputValue);
-  }
-
-}
-
-void mouse_init()
-{ /*
-    mouse.write(0xff);  // reset
-    mouse.read();  // ack byte
-    mouse.write(0xf0);  // remote mode
-    mouse.read();  // ack
-    delayMicroseconds(100);
-    mouse.write(0xf3);  // Set Sample Rate
-    mouse.read();  // ack
-    mouse.write(0xc8);  // 200 sampl/s
-    mouse.read();  // ack
-    mouse.write(0xe8);  // Set Resolution
-    mouse.read();  // ack
-    mouse.write(0x03);  //  8 counts/mm
-    mouse.read();  // ack*/
-  mouse.write(0xff);  // reset
-  mouse.read();  // ack byte
-  mouse.read();  // blank */
-  mouse.read();  // blank */
-  mouse.write(0xf0);  // remote mode
-  mouse.read();  // ack
-}
 
 void fWheelTest() {
   int pos = 0;
@@ -302,24 +270,26 @@ void fWheelTest() {
 }
 
 void setup() {
-
-  Serial.begin(19200);
-  Serial.println("AAA");
-  // reserve 200 bytes for the inputString:
+  Serial.begin(9600);
+  if(debugMode!=1)  {
+  Serial.print("INIT:");
+  mouse.init();
+  Serial.println("DONE");
+  }
+  Serial.println("READY");
+  
+  // reserve 5 bytes for the inputString:
   inputString.reserve(5);
-
-
+  
   stepperEnable = HIGH;
   //###############  uncomment me ###################################
-  mouse_init();
+  
   //###############  uncomment me ###################################
-  // initialize serial:
+
   fWheel.attach(FWHEEL_PIN);
   setFilter(activeFilter);
-  //fWheel.writeMicroseconds(1450);
-  //setPwmFrequency(STEPPER_STEP_PIN, 1);
-  //fWheelTest();
 
+Serial.flush();
 }
 
 int r = 0;
@@ -329,16 +299,21 @@ void loop() {
   curMillis = millis();
   stepperRotation();
   // print the string when a newline arrives:
+  if (millis() - serialPrevStepMillis >= 2000) {
+      stepperEnable = HIGH;
+      noTone(SM_STEP_PIN);
+  }
   if (stringComplete) {
     //Serial.println(inputString);
     // clear the string:
     remoteControl();
     
   //}
+  
 
   if (inputString == "STATE?"){
   //if (curMillis - serialPrevStepMillis >= serialOutputPeriod) {
-    //serialPrevStepMillis = curMillis;
+    serialPrevStepMillis = millis();
     Serial.print("A:");
     Serial.print(angleCounter);
     Serial.print("\tFW:");
@@ -348,9 +323,14 @@ void loop() {
     Serial.print("\tZ:");
     Serial.println(optEndstop.read());
     //r = 1;
-    
     Serial.flush();
   }
+  if((millis()-mouseReinitTimer > mouseReinit) && (rotationMode == SM_STOP || rotationMode == SM_OFF)){
+    mouseReinitTimer = millis();
+    mouse.init();
+    mouse.init();
+    Serial.println("Reinit:Done");
+    }
 
     inputString = "";
     inputValue  = "";
@@ -358,18 +338,28 @@ void loop() {
   }
   
 
-  //############################   laserStrobSimmulator  ###############################################
-  //if (curMillis - laser_timer >= 10) {
-  //  laser_timer = curMillis;
-  //  laserSimulator = !laserSimulator.read();
-  //}
-  //#########################################################
-  
   if (curMillis - angle_timer >= 60) {
     angle_timer = curMillis;
-    r = mouse.get_y(); /////###############  uncomment me ###################################
-    angleCounter += r;
+    if(debugMode!=1){
+      r = mouse.get_y();
+      if (r<10){
+      angleCounter += r;}
+      }
+    else {
+      angleCounter = STEP_COUNTER;
+      }
+    //Serial.println(r);
+    if (angleCounter>360*2) angleCounter=0;
+    else if (angleCounter<0) angleCounter=360*2;
+    if(debugMode==1){
+    Serial.print(stop_button.read());
+    Serial.print("\t");
+    Serial.print(cw_button.read());
+    Serial.print("\t");
+    Serial.println(ccw_button.read());}
+    
   }
+  
   //#########################################################
 }
 
@@ -385,16 +375,10 @@ void serialEvent() {
   while (Serial.available()) {
     // get the new byte:
     char inChar = (char)Serial.read();
-    // add it to the inputString:
-
-
-
     if (inChar == '\n') {
-      //Serial.print(inputString);
-      //Serial.print(inputValue);
-      //Serial.println("+++++++++++");
       stringComplete = true;
       value_aft_command = false;
+      //wdt_reset();
     }
     else {
       if (value_aft_command) {
