@@ -37,7 +37,7 @@ unsigned long mouseReinit = 1800000; // milliseconds
 unsigned long mouseReinitTimer = 0; // milliseconds
 
 unsigned long serialPrevStepMillis = 0;
-unsigned long serialOutputPeriod = 50; // milliseconds
+unsigned long serialOutputPeriod = 1000; // milliseconds
 
 unsigned long angle_timer = 0;
 unsigned long laser_timer = 0;
@@ -50,6 +50,7 @@ boolean stringComplete = false;  // whether the string is complete
 
 long steps = 0;
 bool step_state = false;
+float angle_step_calibr = 1;
 
 #include <DirectIO.h>
 #include "ps2.h"
@@ -192,6 +193,10 @@ void remoteControl() {
     stepperEnable = LOW;
     N_STEPS = st;
     STEP_COUNTER = 0;
+    stepperEnable = HIGH;
+    noTone(SM_STEP_PIN);
+    tone(SM_STEP_PIN,stepperSpeed,millisBetweenSteps);
+    stepperEnable = LOW;
     Serial.print("SM_ROT_CWN:");
     Serial.println(st);
   }
@@ -279,7 +284,7 @@ void setup() {
   Serial.println("READY");
   
   // reserve 5 bytes for the inputString:
-  inputString.reserve(5);
+  inputString.reserve(20);
   
   stepperEnable = HIGH;
   //###############  uncomment me ###################################
@@ -299,22 +304,14 @@ void loop() {
   curMillis = millis();
   stepperRotation();
   // print the string when a newline arrives:
-  if (millis() - serialPrevStepMillis >= 2000) {
+  if (millis() - serialPrevStepMillis >= 1500) {
       stepperEnable = HIGH;
       noTone(SM_STEP_PIN);
   }
-  if (stringComplete) {
-    //Serial.println(inputString);
-    // clear the string:
-    remoteControl();
-    
-  //}
-  
 
-  if (inputString == "STATE?"){
-  //if (curMillis - serialPrevStepMillis >= serialOutputPeriod) {
+  if (millis() - serialPrevStepMillis >= serialOutputPeriod || inputString == "STATE?") {
     serialPrevStepMillis = millis();
-    Serial.print("A:");
+    Serial.print("^A:");
     Serial.print(angleCounter);
     Serial.print("\tFW:");
     Serial.print(activeFilter);
@@ -325,6 +322,15 @@ void loop() {
     //r = 1;
     Serial.flush();
   }
+  if (stringComplete) {
+    //Serial.println(inputString);
+    // clear the string:
+    remoteControl();
+    
+  //}
+  
+
+  
   if((millis()-mouseReinitTimer > mouseReinit) && (rotationMode == SM_STOP || rotationMode == SM_OFF)){
     mouseReinitTimer = millis();
     mouse.init();
@@ -357,8 +363,7 @@ void loop() {
     Serial.print(cw_button.read());
     Serial.print("\t");
     Serial.println(ccw_button.read());}
-    
-  }
+    }
   
   //#########################################################
 }

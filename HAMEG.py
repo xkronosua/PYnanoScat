@@ -100,24 +100,38 @@ class HAMEG(object):
 		res = cyp2#int.from_bytes(val, byteorder='big')*30/2**16
 		return res
 
-	def vdiv1(self, vold1):
+	def vdiv1(self, vold1,ac_dc=False):
 		"""[0 13]"""
-		vold1 += 16 
+		if not ac_dc:
+			vold1 += 16 
+		else:
+			vold1 += 16+64
 		"""[16 28]"""
 		print("CH1=")
 		f = [round(vold1), 13]
 		self.ser.write("CH1=".encode('ASCII')+bytearray(f))
 		r = self.ser.read(3)
+		if not ac_dc:
+			pass
+		else:
+			r = int(r) - 64
 		return r
 
-	def vdiv2(self,vold2):
+	def vdiv2(self,vold2,ac_dc=False):
 		"""[0 13]"""
-		vold2 += 16 
+		if not ac_dc:
+			vold2 += 16 
+		else:
+			vold2 += 16+64
 		"""[16 28]"""
 		print("CH2=")
 		f = [round(vold2), 13]
 		self.ser.write("CH2=".encode('ASCII')+bytearray(f))
 		r = self.ser.read(3)
+		if not ac_dc:
+			pass
+		else:
+			r = int(r)  - 64
 		return r
 
 	def tdiv(self,timed):

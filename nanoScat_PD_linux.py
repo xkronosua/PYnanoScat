@@ -32,8 +32,8 @@ import signal
 import struct
 
 from datetime import datetime
-
-
+import queue
+from com_monitor import ComMonitorThread
  
 
 
@@ -117,6 +117,7 @@ class nanoScat_PD(QtGui.QMainWindow):
 	FWCalibrationCounterList = []
 
 	angleSensorSerial = None
+	com_monitor = None
 	angleUpdateTimer = None
 	angleUpdateThread = None
 	lastDirection = 1
@@ -271,6 +272,8 @@ class nanoScat_PD(QtGui.QMainWindow):
 		
 		#self.osc_pw.showAxis('bottom', False)
 		self.osc_pw.setYRange(0, 256)
+		self.osc_pw.setMinimumWidth(300)
+		self.osc_pw.setMinimumHeight(200)
 		self.ui.show()
 
 
@@ -315,58 +318,50 @@ class nanoScat_PD(QtGui.QMainWindow):
 			#self.SMD.eClearSteps()#SMD_ClearStep(self.ATrtAddr)
 			self.lastDirection = direction
 
-	def CCWSingleMove(self):
-		steps, angle = self.getCorrectedAngle()
-		self.angleSensorSerial.write(b"CCW:"+str(steps).encode('utf-8')+b"\n")
-		r = self.angleSensorSerial.readline()   
-		print(r)
+	def relCCWMove(self):
+		val = self.ui.relAngleIncrement.value()
+		self.com_monitor.serial_port.write(b"REL="+str(-val).encode('utf-8')+b"\n")
+		#r = self.com_monitor.serial_port.readline()   
+		#print(r)
 
 
 
-	def CWSingleMove(self):
-		steps, angle = self.getCorrectedAngle()
-		self.angleSensorSerial.write(b"CW:"+str(steps).encode('utf-8')+b"\n")
-		r = self.angleSensorSerial.readline()   
-		print(r)
+	def relCWMove(self):
+		val = self.ui.relAngleIncrement.value()
+		self.com_monitor.serial_port.write(b"REL="+str(val).encode('utf-8')+b"\n")
+		#r = self.com_monitor.serial_port.readline()   
+		#print(r)
+
+	
 	
 	def CCWMoveToStop(self):
 		print("CCWMoveToStop")
-		self.angleSensorSerial.write(b"CCW\n")
-		r = self.angleSensorSerial.readline()
-		print(r)
+		self.com_monitor.serial_port.write(b"CCW\n")
+		#r = self.com_monitor.serial_port.readline()
+		#print(r)
 		
 		
 	def CWMoveToStop(self):
 		print("CWMoveToStop")
-		self.angleSensorSerial.write(b"CW\n")
-		r = self.angleSensorSerial.readline()
-		print(r)
+		self.com_monitor.serial_port.write(b"CW\n")
+		#r = self.com_monitor.serial_port.readline()
+		#print(r)
 		
 
 	def CCWHome(self):
 		print("CCWHome")
-		self.angleSensorSerial.write(b"HOME:CCW\n")
-		r = self.angleSensorSerial.readline()
-		print(r)
+		self.com_monitor.serial_port.write(b"HOME=CCW\n")
+		#r = self.com_monitor.serial_port.readline()
+		#print(r)
 		
 
 	def CWHome(self):
 		print("CWHome")
-		self.angleSensorSerial.write(b"HOME:CW\n")
-		r = self.angleSensorSerial.readline()
-		print(r)
+		self.com_monitor.serial_port.write(b"HOME=CW\n")
+		#r = self.com_monitor.serial_port.readline()
+		#print(r)
 
-	def onCalibrHomeTimer(self):
-		info = self.getNanoScatInfo(['zero','angle'])
-		if info['zero'] == 1:
-			print("Zero at:", info['angle'])
-			self.stepperStop()
-			self.updateAngle(0)
-			self.setNanoScatState(angle=0)
-			self.currentAngle = 0
-			self.calibrHomeTimer.stop()
-		else:
-			print("angle:", info['angle'])
+	
 		
 
 	def getCurrentFilter(self):
@@ -387,10 +382,10 @@ class nanoScat_PD(QtGui.QMainWindow):
 	def prevFilter(self):
 		row = self.ui.filtersTab.currentRow()
 		if row>0:
-			print(b"FW:"+str(row-1).encode('utf-8')+b"\n")
-			self.angleSensorSerial.write(b"FW:"+str(row-1).encode('utf-8')+b"\n")
-			r = self.angleSensorSerial.readline()   
-			print(r)
+			print(b"FW="+str(row-1).encode('utf-8')+b"\n")
+			self.com_monitor.serial_port.write(b"FW="+str(row-1).encode('utf-8')+b"\n")
+			#r = self.com_monitor.serial_port.readline()   
+			#print(r)
 			self.ui.filtersTab.setCurrentCell(row-1,0)
 			self.lastFiltChTime = datetime.now()
 			#self.ui.oscilloVdiv2.setCurrentIndex(10)
@@ -404,10 +399,10 @@ class nanoScat_PD(QtGui.QMainWindow):
 	def nextFilter(self):
 		row = self.ui.filtersTab.currentRow()
 		if row<5:
-			print(b"FW:"+str(row+1).encode('utf-8')+b"\n")
-			self.angleSensorSerial.write(b"FW:"+str(row+1).encode('utf-8')+b"\n")
-			r = self.angleSensorSerial.readline()   
-			print(r)
+			print(b"FW="+str(row+1).encode('utf-8')+b"\n")
+			self.com_monitor.serial_port.write(b"FW="+str(row+1).encode('utf-8')+b"\n")
+			#r = self.com_monitor.serial_port.readline()   
+			#print(r)
 			self.lastFiltChTime = datetime.now()
 			#self.ui.oscilloVdiv2.setCurrentIndex(3)
 			#self.oscillo.vdiv2(3)
@@ -420,34 +415,35 @@ class nanoScat_PD(QtGui.QMainWindow):
 		
 
 	def stepperStop(self):
-		self.angleSensorSerial.write(b"SM:STOP\n")
-		r = self.angleSensorSerial.readline()   
-		print(r)
+		self.com_monitor.serial_port.write(b"STOP\n")
+		#r = self.com_monitor.serial_port.readline()   
+		#print(r)
 
 	def stepperLock(self,state):
 		if state:
-			self.angleSensorSerial.write(b"SM:OFF\n")
+			self.com_monitor.serial_port.write(b"ON\n")
 		else:
-			self.angleSensorSerial.write(b"SM:ON\n")
-		r = self.angleSensorSerial.readline()   
-		print(r)
+			self.com_monitor.serial_port.write(b"OFF\n")
+		#r = self.com_monitor.serial_port.readline()   
+		#print(r)
 
 	def setStepperSpeed(self):
 		speed = self.ui.stepperSpeed.value()
-		self.angleSensorSerial.write(b"SPEED:"+str(speed).encode('utf-8')+b"\n")
-		r = self.angleSensorSerial.readline()   
-		print(r)
+		self.com_monitor.serial_port.write(b"SPEED="+str(speed).encode('utf-8')+b"\n")
+		#r = self.com_monitor.serial_port.readline()   
+		#print(r)
 
 	def updateAngle(self, new_angle=0, mode='None'):
 		if self.sender().objectName() == "resetAngle": mode = "reset"
 		if mode == "reset":
 			self.currentAngle = 0
+			self.com_monitor.serial_port.write(b"ANGLE="+str(0).encode('utf-8')+b"\n")
 		elif mode == "set":
 			self.currentAngle = new_angle  # in deg
 			val = new_angle / float(self.config['GLOBAL']['anglecalibr'])
-			self.angleSensorSerial.write(b"ANGLE:"+str(val).encode('utf-8')+b"\n")
-			r = self.angleSensorSerial.readline()   
-			print(r)
+			self.com_monitor.serial_port.write(b"ANGLE="+str(val).encode('utf-8')+b"\n")
+			#r = self.com_monitor.serial_port.readline()   
+			#print(r)
 		else:
 			try:
 				self.currentAngle = new_angle*float(self.config['GLOBAL']['anglecalibr'])
@@ -475,8 +471,9 @@ class nanoScat_PD(QtGui.QMainWindow):
 		ok = dlg.exec_()
 		angle = dlg.doubleValue()
 		if ok:
-			if angle>self.currentAngle:
-				pass
+			self.com_monitor.serial_port.write(b"ABS="+str(angle).encode('utf-8')+b"\n")
+			#r = self.com_monitor.serial_port.readline()   
+			print(r)
 
 
 
@@ -648,33 +645,18 @@ class nanoScat_PD(QtGui.QMainWindow):
 
 	def openAngleSensorPort(self,state):
 		if state:
-			'''
-			portNumber = self.ui.angleSensorPort.value()
-			dev = serial.tools.list_ports.comports()
-			print(dev)
-			dev_list = []
-			for d in dev:
-				dev_list.append(d)
-				
-				try:
-					com, info = dev_list[-1][0], dev_list[-1][2]
-					m = re.search('1A86:7523',info)
-					print(m,info)
-					if m.group(0) == '1A86:7523':
-						print(info,com)
-						portNumber = int(com[3:])
-						self.ui.angleSensorPort.setValue(portNumber)
-				except: pass
-			'''
-			
+		
 			print(">>>>>>open")
-			#et.openSerialPort('COM'+str(self.ui.angleSensorPort.value()))
-			#self.angleSensorSerial = serial.Serial('COM'+str(self.ui.angleSensorPort.value()), baudrate=19200, dsrdtr=False)
-			#self.angleSensorSerial = serial.Serial()
-			port = '/dev/ttyUSB'+str(self.ui.angleSensorPort.value())
-			self.angleSensorSerial = serial.Serial(port,baudrate=9600,timeout=5)#.port = port
-			print(port)
-			time.sleep(1)
+			
+			#port = '/dev/ttyUSB'+str(self.ui.angleSensorPort.value())
+			self.data_q = queue.Queue()
+			self.error_q = queue.Queue()
+			self.port = list(list_ports.grep("0403:0000"))[0][0]
+			self.com_monitor = ComMonitorThread(self.data_q,self.error_q,self.port,9600)
+			self.com_monitor.start()
+			#self.angleSensorSerial = serial.Serial(port,baudrate=9600,timeout=0.1)#.port = port
+			print(self.port)
+			time.sleep(2)
 			#self.angleSensorSerial.port = port
 			#self.angleSensorSerial.baudrate = 19200
 			#self.angleSensorSerial.timeout = 4
@@ -684,36 +666,44 @@ class nanoScat_PD(QtGui.QMainWindow):
 			#self.angleSensorSerial.flush()
 			#self.angleSensorSerial.flushInput()
 			#self.angleSensorSerial.flushOutput()
-			a=self.angleSensorSerial.read(5)
-			print("0>>",a)
-			self.angleSensorSerial.write(b"STATE?\n")
-			a=self.angleSensorSerial.readline()
-			print("1>>",a)
-			#self.angleSensorSerial.write(b'1')
-			#self.setNanoScatState(frecMode=[20,20])
-			#self.setNanoScatState(angleCalibrCoef=0.49)
-			self.angleUpdateTimer.start(1000)
-			#self.angleSensorSerial.write(b'2')
+			#a=self.angleSensorSerial.read(5)
+			print("0>>",self.data_q)
+			#self.angleSensorSerial.write(b"STATE?\n")
+			#a=self.angleSensorSerial.readline()
+			#print("1>>",a)
+			
+			self.angleUpdateTimer.start(self.ui.plotPeriod.value())
 			
 
 		else:
 			self.angleUpdateTimer.stop()
-			#self.angleSensorSerial.write(b'RM')
-			self.angleSensorSerial.close()
+			self.com_monitor.stop()
 
 	
 	def getNanoScatInfo(self,keys=['angle']):
-		if not self.angleSensorSerial.isOpen():
+		if not self.com_monitor.serial_port.isOpen():
 			self.openAngleSensorPort(True)
 			return None
 		else:
 			outDict = {}
-			self.angleSensorSerial.flush()
-			self.angleSensorSerial.flushInput()
-			self.angleSensorSerial.flushOutput()
-			self.angleSensorSerial.write(b"STATE?\n")
-			line = self.angleSensorSerial.readline().decode("utf-8")
+			#self.angleSensorSerial.flush()
+			#self.angleSensorSerial.flushInput()
+			#self.angleSensorSerial.flushOutput()
+			self.com_monitor.serial_port.write(b"STATE?\n")
+			#line = self.angleSensorSerial.readline().decode("utf-8")
+			prev_data = []
+			while not self.com_monitor.data_q.empty():
+				prev_data.append(self.com_monitor.data_q.get())
+			data = ''
+			for i in prev_data:
+				data+= i[0].decode()
+			line = data.split('\n')
+			if len(line)<2:
+				line = line[0]
+			elif len(line)>=2:
+				line = line[-2]
 			print(">>",line)
+			self.ui.statusBar.showMessage(line)
 			if 'angle' in keys:
 				try:
 					outDict['angle'] = float(line.split('A:')[-1].split('\t')[0])
@@ -738,23 +728,6 @@ class nanoScat_PD(QtGui.QMainWindow):
 					outDict['freqMode'] = [None, None]
 			return outDict
 
-	def setNanoScatState(self,angle=None, frecMode=[None, None], angleCalibrCoef=None):
-		if not self.angleSensorSerial.isOpen():
-			self.openAngleSensorPort(True)
-			return None
-		else:
-			res = None
-			if not angle is None:
-				res = self.angleSensorSerial.write(b'A'+str(angle).encode())
-			if not angleCalibrCoef is None:
-				res = self.angleSensorSerial.write(b'CC'+str(angleCalibrCoef).encode())
-
-			if sum([i is None for i in frecMode]) != 2:
-				res = self.angleSensorSerial.write(b'FM'+str(frecMode[0]).encode()+b'x'+str(frecMode[1]).encode())
-			print(res)
-			return 1
-
-		
 
 	def onAngleUpdateTimer(self):
 		
@@ -781,21 +754,7 @@ class nanoScat_PD(QtGui.QMainWindow):
 		self.line0.setData(x=[], y=[])
 		self.line1.setData(x=[], y=[])
 
-	def setStrobMode(self, mode):
-		#m = et.setStrobMode(mode)
-		print('strobMode:%d'%(m))
 
-	def setLaserFreq(self, value):
-		print('SetLaserFreq:')
-		#if not self.angleSensorSerial.inWaiting():
-		
-		#   self.angleSensorSerial = serial.Serial()
-		#   self.angleSensorSerial.port = 'COM'+str(self.ui.angleSensorPort.value())
-		#   self.angleSensorSerial.baudrate = 19200
-		#   self.angleSensorSerial.timeout = 1
-		#   self.angleSensorSerial.setDTR(False)
-		#   self.angleSensorSerial.open()
-		self.angleSensorSerial.write(b'f'+str(value).encode('ascii')+b'\n')
 
 	def closeEvent(self, event):
 		print("event")
@@ -803,7 +762,7 @@ class nanoScat_PD(QtGui.QMainWindow):
 			"Are you sure to quit?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
 
 		if reply == QtGui.QMessageBox.Yes:
-			self.angleSensorSerial.close()
+			self.com_monitor.stop()
 			self.oscillo.disconnect()
 			self.oscillo.close()
 			event.accept()
@@ -820,6 +779,8 @@ class nanoScat_PD(QtGui.QMainWindow):
 			r = self.oscillo.vers()
 			print(r)
 			ch1_v = self.oscillo.get_vdiv1()
+			if self.ui.CH1_AC_DC.isChecked():
+				ch1_v -= 64
 			print(ch1_v)
 			self.ui.oscilloVdiv1.setCurrentIndex(ch1_v)
 			yp1 = self.oscillo.get_ypos1()
@@ -827,6 +788,8 @@ class nanoScat_PD(QtGui.QMainWindow):
 			self.ui.oscilloYpos1.setValue(yp1)
 			
 			ch2_v = self.oscillo.get_vdiv2()
+			if self.ui.CH2_AC_DC.isChecked():
+				ch1_v -= 64
 			print(ch2_v)
 			self.ui.oscilloVdiv2.setCurrentIndex(ch2_v)
 			yp2 = self.oscillo.get_ypos2()
@@ -988,10 +951,12 @@ class nanoScat_PD(QtGui.QMainWindow):
 
 	def oscilloSet(self):
 		v1 = self.ui.oscilloVdiv1.currentIndex()
-		r = self.oscillo.vdiv1(v1)
+		ac_dc1 = self.ui.CH1_AC_DC.isChecked()
+		r = self.oscillo.vdiv1(v1,ac_dc1)
 		print(r)
+		ac_dc2 = self.ui.CH2_AC_DC.isChecked()
 		v2 = self.ui.oscilloVdiv2.currentIndex()
-		r = self.oscillo.vdiv2(v2)
+		r = self.oscillo.vdiv2(v2,ac_dc2)
 		print(r)
 
 		td = self.ui.oscilloTdiv.currentIndex()
@@ -1029,9 +994,9 @@ class nanoScat_PD(QtGui.QMainWindow):
 		self.ui.moveToAngle.clicked.connect(self.moveToAngle)
 		
 		#self.ui.editStepperSettings.clicked.connect(self.setStepperParam)
-		#self.ui.CCWSingleMove.clicked.connect(self.CCWSingleMove)
-		#self.ui.CWSingleMove.clicked.connect(self.CWSingleMove)
-		self.ui.strobMode.toggled[bool].connect(self.setStrobMode)
+		self.ui.relCWMove.clicked.connect(self.relCWMove)
+		self.ui.relCCWMove.clicked.connect(self.relCCWMove)
+
 		self.ui.cleanPlot.clicked.connect(self.cleanPlot)
 
 		self.ui.CCWMoveToStop.clicked.connect(self.CCWMoveToStop)
@@ -1060,7 +1025,7 @@ class nanoScat_PD(QtGui.QMainWindow):
 		self.calibrTimer.timeout.connect(self.onCalibrTimer)
 		self.measTimer.timeout.connect(self.onContMeasTimer)
 		self.angleUpdateTimer.timeout.connect(self.onAngleUpdateTimer)
-		self.calibrHomeTimer.timeout.connect(self.onCalibrHomeTimer)
+		#self.calibrHomeTimer.timeout.connect(self.onCalibrHomeTimer)
 		self.oscReadTimer.timeout.connect(self.onOscReadTimer)
 		#self.calibrFWTimer.timeout.connect(self.onCalibrFWTimer)
 		#self.stepperStateTimer.timeout.connect(self.checkStepperState)
