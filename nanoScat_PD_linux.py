@@ -82,12 +82,21 @@ def freq_calc(y_mask):
 		prev = i
 	#print("T:",T,duty_cycle)
 	T_mean = np.mean(T[1:])
-	duty_cycle_mean = np.mean(duty_cycle[1:	])
+	duty_cycle_mean = np.mean(duty_cycle[1: ])
 	return 1/T_mean, duty_cycle_mean
 
 def peak2peak(ref,signal,smooth_ref=3,mean_calc=np.median, ref_mode='triangle'):
 	if ref_mode == 'triangle':
-		y_df1 = np.insert(np.diff(medfilt(ref,smooth_ref)), 0, 0)
+		#y_df1 = np.insert(np.diff(medfilt(ref,smooth_ref)), 0, 0)
+		p=ref[0]
+		y_df1=[0]
+		for i in ref[1:]:
+			#print(i-p,y_df1[-1])
+			if abs(i-p)>2:
+				y_df1.append(i-p)
+				p=i
+			else: y_df1.append(y_df1[-1])
+		y_df1 = np.array(y_df1)
 	else:
 		d = ref.max()-ref.mean()
 		y_df1 = ref-ref.mean()+d/10
@@ -95,10 +104,11 @@ def peak2peak(ref,signal,smooth_ref=3,mean_calc=np.median, ref_mode='triangle'):
 	HIGH=np.mean(signal[y_df1>0])
 	LOW=np.mean(signal[y_df1<0])
 	res = abs(mean_calc(HIGH)-mean_calc(LOW))
-	STD = np.sqrt(np.std(signal[y_df1>0])**2 )#+ np.std(signal[y_df1<0])**2)
+	STD = np.std(signal[y_df1>0])#+ np.std(signal[y_df1<0])**2)
 	f,duty_cycle = freq_calc(y_df1>0)
 	#print(STD)
-	return res,HIGH,LOW,STD,f,duty_cycle
+	ref_norm = (y_df1<0)*256
+	return res,STD,HIGH,LOW,ref_norm,f,duty_cycle
 
 
 class nanoScat_PD(QtGui.QMainWindow):
@@ -107,7 +117,7 @@ class nanoScat_PD(QtGui.QMainWindow):
 	ATrtAddr = 255
 	currentAngle = 0
 	prevMove = ([0, 0], [0, 0])
-	line0, line1, line2, line3, line4, line5, line6, line7 = None, None, None, None, None, None, None, None
+	line0, line1, line_sig, line_ref, line_ref_norm, line5, line6, line7 = None, None, None, None, None, None, None, None
 	lines = [line0, line1, line2, line3, line4, line5, line6, line7]
 	steppingTimer = None
 	calibrTimer = None
@@ -195,10 +205,10 @@ class nanoScat_PD(QtGui.QMainWindow):
 					newitem = QTableWidgetItem(val)
 					self.ui.filtersTab.setItem(row,column,newitem)
 		#for column, key in enumerate(section):
-			#	newitem = QTableWidgetItem(item)
-			#	for row, item in enumerate(self.data[key]):
-			#		newitem = QTableWidgetItem(item)
-			#		self.setItem(row, column, newitem)
+			#   newitem = QTableWidgetItem(item)
+			#   for row, item in enumerate(self.data[key]):
+			#       newitem = QTableWidgetItem(item)
+			#       self.setItem(row, column, newitem)
 
 			
 	def saveConfig(self):
@@ -236,7 +246,7 @@ class nanoScat_PD(QtGui.QMainWindow):
 
 		with open('settings.ini', 'w') as configfile:
 			self.config.write(configfile)
-		'''	
+		''' 
 			for row,key in enumerate(section):
 				print(row,key)
 				for column,val in enumerate(section[key].split(',')):
@@ -287,10 +297,13 @@ class nanoScat_PD(QtGui.QMainWindow):
 		self.line0.setPen(QtGui.QColor('cyan'))
 		self.line1 = self.pw.plot()
 		self.line1.setPen(QtGui.QColor("orange"))
-		self.line2 = self.osc_pw.plot()
-		self.line2.setPen(QtGui.QColor("orange"))
-		self.line3 = self.osc_pw.plot()
-		self.line3.setPen(QtGui.QColor("cyan"))
+		self.line_sig = self.osc_pw.plot()
+		self.line_sig.setPen(QtGui.QColor("orange"))
+		self.line_ref = self.osc_pw.plot()
+		self.line_ref.setPen(QtGui.QColor("cyan"))
+		self.line_ref_norm = self.osc_pw.plot()
+		self.line_ref_norm.setPen(QtGui.QColor("red"))
+
 
 		self.pw.setLabel('left', 'Signal', units='arb. un.')
 		self.pw.setLabel('bottom', 'Angle', units='deg.')
@@ -320,7 +333,7 @@ class nanoScat_PD(QtGui.QMainWindow):
 
 	def relCCWMove(self):
 		val = self.ui.relAngleIncrement.value()
-		self.com_monitor.serial_port.write(b"REL="+str(-val).encode('utf-8')+b"\n")
+		self.com_monitor.serial_port.write(b"REL="+str(val).encode('utf-8')+b"\n")
 		#r = self.com_monitor.serial_port.readline()   
 		#print(r)
 
@@ -328,7 +341,7 @@ class nanoScat_PD(QtGui.QMainWindow):
 
 	def relCWMove(self):
 		val = self.ui.relAngleIncrement.value()
-		self.com_monitor.serial_port.write(b"REL="+str(val).encode('utf-8')+b"\n")
+		self.com_monitor.serial_port.write(b"REL="+str(-val).encode('utf-8')+b"\n")
 		#r = self.com_monitor.serial_port.readline()   
 		#print(r)
 
@@ -433,7 +446,7 @@ class nanoScat_PD(QtGui.QMainWindow):
 		#r = self.com_monitor.serial_port.readline()   
 		#print(r)
 
-	def updateAngle(self, new_angle=0, mode='None'):
+	def updateAngle(self, new_angle=0, angle_counter=0, mode='None'):
 		if self.sender().objectName() == "resetAngle": mode = "reset"
 		if mode == "reset":
 			self.currentAngle = 0
@@ -450,6 +463,7 @@ class nanoScat_PD(QtGui.QMainWindow):
 			except:
 				pass
 		self.ui.currentAngle.setText(str(self.currentAngle))
+		self.ui.currentAngleCounter.setText(str(angle_counter))
 		return self.currentAngle
 
 	def setCustomAngle(self):
@@ -562,7 +576,7 @@ class nanoScat_PD(QtGui.QMainWindow):
 				f.write("#$WAVELENGTH:"+self.config['GLOBAL']['wavelength'].replace('\n','\t')+'\n')
 				f.write("#$OBJECT:"+self.config['GLOBAL']['object'].replace('\n','\t')+'\n')
 
-				f.write("angle\tref\tsignal\tsignal_std\tfilter\tTime\tfreq\tduty_cycle\n")
+				f.write("angle\tangle_counter\tref\tsignal\tsignal_std\tfilter\tTime\tfreq\tduty_cycle\n")
 			
 			self.measTimer.start(self.ui.plotPeriod.value())
 			
@@ -604,8 +618,9 @@ class nanoScat_PD(QtGui.QMainWindow):
 
 		name,tmp_filt,index = self.getCurrentFilter()
 		print('Filter:',name,float(tmp_filt),index)
-		info = self.getNanoScatInfo(['angle', 'FW'])
-		angle = float(self.ui.currentAngle.text())#info['angle']
+		info = self.getNanoScatInfo(['angle', 'FW', 'angle_counter'])
+		angle = float(self.ui.currentAngle.text())
+		angle_counter = float(self.ui.currentAngleCounter.text())#info['angle']
 		filt = info['FW']
 		freq = float(self.ui.oscilloFreq.text())
 		duty_cycle = float(self.ui.duty_cycle.text())
@@ -617,10 +632,11 @@ class nanoScat_PD(QtGui.QMainWindow):
 		#self.ui.currentAngle.setText(str(self.currentAngle))
 
 		x = angle
+		x_c = angle_counter
 		
 
 		with open(self.ui.saveToPath.text(), 'a') as f:
-				f.write(str(x)+"\t"+str(y0)+"\t"+str(y1) + "\t"+ str(y1_std)+'\t' + str(filt)+"\t"+str(time.time())+"\t"+str(freq)+"\t"+str(duty_cycle) +"\n")
+				f.write(str(x)+"\t"+str(x_c)+"\t"+str(y0)+"\t"+str(y1) + "\t"+ str(y1_std)+'\t' + str(filt)+"\t"+str(time.time())+"\t"+str(freq)+"\t"+str(duty_cycle) +"\n")
 
 		#print(self.measData)
 		if len(self.measData)>0:
@@ -707,9 +723,11 @@ class nanoScat_PD(QtGui.QMainWindow):
 			if 'angle' in keys:
 				try:
 					outDict['angle'] = float(line.split('A:')[-1].split('\t')[0])
-					self.updateAngle(outDict['angle'])
+					outDict['angle_counter'] = float(line.split('c:')[-1].split('\t')[0])
+					self.updateAngle(outDict['angle'], angle_counter=outDict['angle_counter'])
 				except ValueError:
 					outDict['angle'] = None
+
 			if 'zero' in keys:
 				try:
 					outDict['zero'] = int(line.split('Z:')[-1].split('\t')[0])
@@ -731,8 +749,9 @@ class nanoScat_PD(QtGui.QMainWindow):
 
 	def onAngleUpdateTimer(self):
 		
-		info = self.getNanoScatInfo(['angle','FW'])
+		info = self.getNanoScatInfo(['angle','FW','angle_counter'])
 		angle = info['angle']
+		angle_counter = info['angle_counter']
 		filt = info['FW'] 
 		try:
 			#self.currentAngle = angle#et.getAngle()
@@ -740,7 +759,7 @@ class nanoScat_PD(QtGui.QMainWindow):
 		except:
 			pass
 		print("angle", angle)
-		self.updateAngle(angle)
+		self.updateAngle(angle,angle_counter=angle_counter)
 		#self.ui.currentAngle.setText(str(self.currentAngle))
 
 	def checkStepperState(self):
@@ -833,8 +852,9 @@ class nanoScat_PD(QtGui.QMainWindow):
 		index2 = self.ui.oscilloVdiv2.currentIndex()
 		
 		
-		Vpp1,HIGH,LOW,STD,f,duty_cycle = peak2peak(ref,sig,ref_mode='triangle')
-		
+		Vpp1,STD,HIGH,LOW,ref_norm,f,duty_cycle = peak2peak(ref,sig,ref_mode='triangle')
+		self.line_ref_norm.setData(x=np.arange(len(ref_norm)),y=ref_norm)
+
 		frequency = 1/(0.1/2048*10/f)
 		self.ui.oscilloFreq.setText(str(frequency))
 		self.ui.duty_cycle.setText(str(duty_cycle))

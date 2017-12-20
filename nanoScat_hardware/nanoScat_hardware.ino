@@ -75,7 +75,7 @@ byte homeState = 0;
 
 int SM_SPEED = 512;
 int SM_MAX_SPEED = 10000;
-float SM_STEP_CALIBR = 16/1.8;
+float SM_STEP_CALIBR = -991.37; //-16./1.8*126.4;
 //enum SM_MODE {SM_OFF, SM_CONTINUOUS_MOVE, SM_STEP_MOVE};
 int SM_MODE = SM_OFF;
 int SM_direction = 1;
@@ -238,7 +238,7 @@ void setup() {
   Serial.println(">READY");
 
   // reserve 5 bytes for the inputString:
-  inputString.reserve(20);
+  inputString.reserve(100);
 
   fWheel.attach(FWHEEL_PIN);
   setFilter(activeFilter);
@@ -286,7 +286,7 @@ void loop() {
     stringComplete = false;
   }
 
-  if (millis() - angle_timer >= 60) {
+  if (millis() - angle_timer >= 35) {
     angle_timer = millis();
     if (debugMode != 1) {
       r = mouse.get_y();
@@ -298,8 +298,14 @@ void loop() {
       angleCounter = stepper.currentPosition();
     }
     //Serial.println(r);
-    if (angleCounter > 360 * ANGLE_CALIBR) angleCounter = 0;
-    else if (angleCounter < 0) angleCounter = 360 * ANGLE_CALIBR;
+    if (angleCounter > 360 * ANGLE_CALIBR) {
+      angleCounter = 0;
+      stepper.setCurrentPosition(0);
+    }
+    else if (angleCounter < 0) {
+      angleCounter = 360 * ANGLE_CALIBR;
+      stepper.setCurrentPosition(360*SM_STEP_CALIBR);
+      }
     if (debugMode == 1) {
       Serial.print(stop_button.read());
       Serial.print("\t");
