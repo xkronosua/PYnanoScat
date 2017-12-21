@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1305</width>
-    <height>896</height>
+    <width>1106</width>
+    <height>609</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -57,9 +57,9 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>0</y>
-         <width>400</width>
-         <height>746</height>
+         <y>-15</y>
+         <width>387</width>
+         <height>505</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -73,12 +73,83 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="4" column="0" colspan="2">
-           <widget class="QSlider" name="stepperSpeed">
-            <property name="toolTip">
-             <string>stepper speed</string>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="4" column="5">
+           <widget class="QPushButton" name="CCWMoveToStop">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>&gt;&gt;&gt;||</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QPushButton" name="openAngleSensorPort">
+            <property name="text">
+             <string>Open</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1" rowspan="2" colspan="4">
+           <widget class="QLabel" name="currentAngle">
+            <property name="maximumSize">
+             <size>
+              <width>150</width>
+              <height>70</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color:yellow; font-size:40pt;</string>
+            </property>
+            <property name="text">
+             <string>ang</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="angleSensorPort">
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="4" colspan="2">
+           <widget class="QPushButton" name="setCustomAngle">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>setAngle</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" rowspan="2" colspan="5">
+           <widget class="QSlider" name="stepperSpeed">
             <property name="minimum">
              <number>50</number>
             </property>
@@ -93,211 +164,17 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="2" rowspan="2">
-           <widget class="QToolButton" name="stepperStop">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+          <item row="1" column="5" rowspan="2">
+           <widget class="QSpinBox" name="stepperSpeedValue">
+            <property name="minimum">
+             <number>1</number>
             </property>
-            <property name="styleSheet">
-             <string notr="true">border: 1px solid red;</string>
-            </property>
-            <property name="text">
-             <string>STOP</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QToolButton" name="stepperLock">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>lock</string>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="9" column="2">
-           <widget class="QPushButton" name="CCWMoveToStop">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>Move CCW</string>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background:orange; color:blue;</string>
-            </property>
-            <property name="text">
-             <string>&gt;&gt;&gt;||</string>
-            </property>
-           </widget>
-          </item>
-          <item row="9" column="0">
-           <widget class="QToolButton" name="CWMoveToStop">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>Move CW</string>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background:orange; color:blue;</string>
-            </property>
-            <property name="text">
-             <string>||&lt;&lt;&lt;</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QPushButton" name="openAngleSensorPort">
-            <property name="text">
-             <string>Open</string>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="13" column="0">
-           <widget class="QPushButton" name="relCWMove">
-            <property name="toolTip">
-             <string>relative step CW</string>
-            </property>
-            <property name="whatsThis">
-             <string>relative step CW</string>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background:purple; color:cyan;</string>
-            </property>
-            <property name="text">
-             <string>&lt;</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QSpinBox" name="angleSensorPort"/>
-          </item>
-          <item row="4" column="2">
-           <widget class="QToolButton" name="setStepperSpeed">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>setSpeed</string>
-            </property>
-           </widget>
-          </item>
-          <item row="13" column="2">
-           <widget class="QPushButton" name="relCCWMove">
-            <property name="toolTip">
-             <string>relative step CCW</string>
-            </property>
-            <property name="whatsThis">
-             <string>relative step CW</string>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background:purple; color:cyan;</string>
-            </property>
-            <property name="text">
-             <string>&gt;</string>
-            </property>
-           </widget>
-          </item>
-          <item row="13" column="1">
-           <widget class="QDoubleSpinBox" name="relAngleIncrement">
             <property name="maximum">
-             <double>360.000000000000000</double>
+             <number>3000</number>
             </property>
            </widget>
           </item>
-          <item row="11" column="0">
-           <widget class="QToolButton" name="CWHome">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>Move to HOME CW</string>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background:blue; color:orange;</string>
-            </property>
-            <property name="text">
-             <string>&lt;&lt;Home</string>
-            </property>
-           </widget>
-          </item>
-          <item row="11" column="2">
-           <widget class="QToolButton" name="CCWHome">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>Move to HOME CCW</string>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background:blue; color:orange;</string>
-            </property>
-            <property name="text">
-             <string>Home&gt;&gt;</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="0" colspan="3">
-           <widget class="QLabel" name="currentAngle">
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>100</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">color:yellow; font-size:40pt;</string>
-            </property>
-            <property name="text">
-             <string>ang</string>
-            </property>
-            <property name="textFormat">
-             <enum>Qt::AutoText</enum>
-            </property>
-            <property name="scaledContents">
-             <bool>false</bool>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="indent">
-             <number>0</number>
-            </property>
-           </widget>
-          </item>
-          <item row="9" column="1">
+          <item row="3" column="1" colspan="3">
            <widget class="QToolButton" name="moveToAngle">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
@@ -310,8 +187,8 @@
             </property>
            </widget>
           </item>
-          <item row="11" column="1">
-           <widget class="QPushButton" name="setCustomAngle">
+          <item row="3" column="0">
+           <widget class="QToolButton" name="setStepperSpeed">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
               <horstretch>0</horstretch>
@@ -319,27 +196,99 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>setAngle</string>
+             <string>setSpeed</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QSpinBox" name="stepperSpeedValue">
-            <property name="toolTip">
-             <string>stepper speed</string>
+          <item row="4" column="0">
+           <widget class="QToolButton" name="CWMoveToStop">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
-            <property name="minimum">
-             <number>1</number>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
             </property>
-            <property name="maximum">
-             <number>3000</number>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="0">
-           <widget class="QLabel" name="currentAngleCounter">
             <property name="text">
-             <string>AngleCounter</string>
+             <string>|||&lt;&lt;&lt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QToolButton" name="CWHome">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>&lt;&lt;Home</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3" colspan="3">
+           <widget class="QToolButton" name="stepperStop">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">border: 1px solid red;</string>
+            </property>
+            <property name="text">
+             <string>STOP</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QToolButton" name="stepperLock">
+            <property name="text">
+             <string>lock</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="5">
+           <widget class="QToolButton" name="CCWHome">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Home&gt;&gt;</string>
             </property>
            </widget>
           </item>
@@ -550,7 +499,7 @@
              </size>
             </property>
             <property name="maximum">
-             <number>64</number>
+             <number>30</number>
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -964,9 +913,6 @@
             <property name="text">
              <string>AC/DC</string>
             </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
            </widget>
           </item>
           <item row="5" column="1">
@@ -985,8 +931,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>300</width>
-         <height>746</height>
+         <width>208</width>
+         <height>320</height>
         </rect>
        </property>
        <property name="maximumSize">
@@ -1418,6 +1364,22 @@
          <number>0</number>
         </property>
         <item>
+         <widget class="QToolButton" name="strobMode">
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color:red;</string>
+          </property>
+          <property name="text">
+           <string>strob?</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QToolButton" name="startMeasurement">
           <property name="styleSheet">
            <string notr="true">background-color: rgb(99, 220, 85);
@@ -1442,9 +1404,37 @@ color: #222222;</string>
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="measurementDirCCW">
+         <widget class="QToolButton" name="measurementDirCCW">
+          <property name="maximumSize">
+           <size>
+            <width>30</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="text">
-           <string>&lt;&lt;&lt;</string>
+           <string>&lt;&lt;</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="measurementDirCW">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>30</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>&gt;&gt;</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
           </property>
           <property name="checked">
            <bool>true</bool>
@@ -1452,12 +1442,21 @@ color: #222222;</string>
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="measurementDirCW">
-          <property name="layoutDirection">
-           <enum>Qt::RightToLeft</enum>
+         <widget class="QDoubleSpinBox" name="measurementStep">
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>16777215</height>
+           </size>
           </property>
-          <property name="text">
-           <string>&gt;&gt;&gt;</string>
+          <property name="decimals">
+           <number>6</number>
+          </property>
+          <property name="maximum">
+           <double>9999999.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.700000000000000</double>
           </property>
          </widget>
         </item>
@@ -1494,6 +1493,54 @@ color: #222222;</string>
          </widget>
         </item>
         <item>
+         <widget class="QLabel" name="label_11">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>20</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>30</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="text">
+           <string>A:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="currentAngleText">
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(108, 255, 16);
+font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
+          </property>
+          <property name="text">
+           <string>0.0</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QDoubleSpinBox" name="plotPeriod">
           <property name="maximumSize">
            <size>
@@ -1512,19 +1559,6 @@ color: #222222;</string>
           </property>
          </widget>
         </item>
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
        </layout>
       </item>
      </layout>
@@ -1536,7 +1570,7 @@ color: #222222;</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1305</width>
+     <width>1106</width>
      <height>26</height>
     </rect>
    </property>
