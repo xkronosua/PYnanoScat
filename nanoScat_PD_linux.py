@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3.5
 # _*_ coding: utf-8 _*_
 
 #from ET1255 import *
@@ -297,6 +297,8 @@ class nanoScat_PD(QtGui.QMainWindow):
 		self.line0.setPen(QtGui.QColor('cyan'))
 		self.line1 = self.pw.plot()
 		self.line1.setPen(QtGui.QColor("orange"))
+		self.line5 = self.pw.plot()
+		self.line5.setPen(QtGui.QColor("red"))
 		self.line_sig = self.osc_pw.plot()
 		self.line_sig.setPen(QtGui.QColor("orange"))
 		self.line_ref = self.osc_pw.plot()
@@ -528,6 +530,7 @@ class nanoScat_PD(QtGui.QMainWindow):
 			self.line1.setData(x=[],y=[])
 			self.line2.setData(x=[],y=[])
 			self.line3.setData(x=[],y=[])
+			self.line5.setData(x=[],y=[])
 			
 		else:
 
@@ -641,15 +644,16 @@ class nanoScat_PD(QtGui.QMainWindow):
 		#print(self.measData)
 		if len(self.measData)>0:
 			
-			self.measData = np.vstack((self.measData,[x,y0,y1/float(tmp_filt)]))
+			self.measData = np.vstack((self.measData,[x,y0,y1/float(tmp_filt),x_c]))
 		else:
-			self.measData = np.array([x,y0,y1/float(tmp_filt)])
+			self.measData = np.array([x,y0,y1/float(tmp_filt),x_c])
 		data = self.measData
 		#print(data)
 
 		
 		self.line0.setData(x=data[:,0], y=data[:,1])
 		self.line1.setData(x=data[:,0], y=data[:,2])
+		self.line5.setData(x=data[:,3], y=data[:,2])
 		#self.updateAngle(x)
 		app.processEvents()  
 
@@ -772,6 +776,7 @@ class nanoScat_PD(QtGui.QMainWindow):
 		self.measData=np.array([])
 		self.line0.setData(x=[], y=[])
 		self.line1.setData(x=[], y=[])
+		self.line5.setData(x=[], y=[])
 
 
 
